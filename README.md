@@ -10,7 +10,7 @@
 
 <h2 align="center">Issues</h2>
 
-<p align="center">You can gladly submit any issues or bugs with the project on the [issues page](https://github.com/Abdelrahmanthecoder/SWIFT-chat/issues)!</p>
+<p align="center">You can gladly submit any issues or bugs with the project on the [issues page](https://github.com/Abdelrahmanthecoder/Jex/issues)!</p>
 
 <div align="center">
   <a href="https://github.com/Abdelrahmanthecoder" style="text-decoration:none;">
