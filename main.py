@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, scrolledtext, messagebox, simpledialog, font
+from tkinter import filedialog, scrolledtext, messagebox, simpledialog, font, colorchooser
 import platform
 import keyword
 import re
@@ -8,13 +8,33 @@ class SimpleIDE:
     def __init__(self, master):
         self.master = master
         self.master.title("SimpleIDE")
+        self.master.geometry("800x600")
 
-        self.text_area = scrolledtext.ScrolledText(self.master, wrap=tk.WORD, undo=True)
-        self.text_area.pack(expand=True, fill='both')
+        # Create a frame for the editor
+        self.editor_frame = tk.Frame(self.master, bd=2, relief=tk.GROOVE)
+        self.editor_frame.pack(expand=True, fill='both', padx=5, pady=5)
 
-        self.output_area = scrolledtext.ScrolledText(self.master, wrap=tk.WORD)
-        self.output_area.pack(expand=True, fill='both')
+        # Title for the editor
+        self.editor_title_label = tk.Label(self.editor_frame, text="Code Editor", font=("Helvetica", 16, "bold"))
+        self.editor_title_label.pack(pady=(10, 5))
 
+        # Text area for code editing
+        self.text_area = scrolledtext.ScrolledText(self.editor_frame, wrap=tk.WORD, undo=True, bd=2, relief=tk.SOLID)
+        self.text_area.pack(expand=True, fill='both', padx=5, pady=5)
+
+        # Create a frame for the output
+        self.output_frame = tk.Frame(self.master, bd=2, relief=tk.GROOVE)
+        self.output_frame.pack(expand=True, fill='both', padx=5, pady=5)
+
+        # Title for the output
+        self.output_title_label = tk.Label(self.output_frame, text="Output", font=("Helvetica", 16, "bold"))
+        self.output_title_label.pack(pady=(10, 5))
+
+        # Text area for output display
+        self.output_area = scrolledtext.ScrolledText(self.output_frame, wrap=tk.WORD, bd=2, relief=tk.SOLID)
+        self.output_area.pack(expand=True, fill='both', padx=5, pady=5)
+
+        # Menu bar
         self.menu_bar = tk.Menu(self.master)
         self.master.config(menu=self.menu_bar)
 
@@ -42,10 +62,33 @@ class SimpleIDE:
         self.format_menu = tk.Menu(self.menu_bar, tearoff=False)
         self.menu_bar.add_cascade(label="Format", menu=self.format_menu)
         self.format_menu.add_command(label="Indent Code", command=self.indent_code)
+        self.format_menu.add_command(label="Syntax Highlighting", command=self.change_syntax_colors)
+        self.format_menu.add_command(label="Toggle Line Numbers", command=self.toggle_line_numbers)
+        self.line_numbers = False
+
+        # Settings Menu
+        self.settings_menu = tk.Menu(self.menu_bar, tearoff=False)
+        self.menu_bar.add_cascade(label="Settings", menu=self.settings_menu)
+        self.settings_menu.add_command(label="Select Theme", command=self.select_theme)
+        self.settings_menu.add_command(label="File Encoding", command=self.select_encoding)
 
         # Syntax Highlighting
-        self.text_area.tag_configure("keyword", foreground="blue")
-        self.highlight_syntax()
+        self.keywords = keyword.kwlist
+        self.string_pattern = re.compile(r'\'[^\']*\'|\"[^\"]*\"')
+        self.comment_pattern = re.compile(r'#.*?$')
+        self.number_pattern = re.compile(r'\b\d+\b')
+
+        self.load_settings()
+
+        self.text_area.bind('<KeyRelease>', self.on_key_release)
+
+    def load_settings(self):
+        self.syntax_highlighting_colors = {
+            "keyword": "blue",
+            "string": "green",
+            "comment": "red",
+            "number": "purple"
+        }
 
     def create_file_menu(self):
         self.file_menu.add_command(label="New", accelerator="Cmd+N" if platform.system() == 'Darwin' else "Ctrl+N", command=self.new_file)
@@ -105,40 +148,50 @@ class SimpleIDE:
         except Exception as e:
             return str(e)
 
+    def on_key_release(self, event):
+        if event.keysym == "BackSpace":
+            self.text_area.tag_remove("highlight", 1.0, tk.END)
+        else:
+            self.highlight_syntax()
+
     def highlight_syntax(self):
-        # Highlight Python keywords
-        for key in keyword.kwlist:
-            self.text_area.tag_configure(key, foreground="blue")
-            self.highlight_pattern(key, "keyword")
+        self.text_area.tag_remove("keyword", 1.0, tk.END)
+        self.text_area.tag_remove("string", 1.0, tk.END)
+        self.text_area.tag_remove("comment", 1.0, tk.END)
+        self.text_area.tag_remove("number", 1.0, tk.END)
 
-    def highlight_pattern(self, pattern, tag, start="1.0", end="end", regexp=False):
-        start = self.text_area.index(start)
-        end = self.text_area.index(end)
-        self.text_area.mark_set("matchStart", start)
-        self.text_area.mark_set("matchEnd", start)
-        self.text_area.mark_set("searchLimit", end)
+        self.highlight_pattern(self.keywords, "keyword")
+        self.highlight_pattern(self.string_pattern, "string")
+        self.highlight_pattern(self.comment_pattern, "comment")
+        self.highlight_pattern(self.number_pattern, "number")
 
-        count = tk.IntVar()
-        while True:
-            index = self.text_area.search(pattern, "matchEnd","searchLimit",
-                                        count=count, regexp=regexp)
-            if index == "": break
-            self.text_area.mark_set("matchStart", index)
-            self.text_area.mark_set("matchEnd", "%s+%sc" % (index, count.get()))
-            self.text_area.tag_add(tag, "matchStart", "matchEnd")
+    def highlight_pattern(self, pattern, tag):
+        start = "1.0"
+        end = tk.END
+        text = self.text_area.get(start, end)
+        for match in pattern.finditer(text):
+            start_index = self.text_area.index(f"{match.start() + 1}c")
+            end_index = self.text_area.index(f"{match.end()}c")
+            self.text_area.tag_add(tag, start_index, end_index)
 
     def indent_code(self):
-        selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
-        if selected_text:
-            formatted_text = self.format_code(selected_text)
-            self.text_area.replace(tk.SEL_FIRST, tk.SEL_LAST, formatted_text)
+        current_line = self.text_area.index(tk.INSERT).split('.')[0]
+        current_line_text = self.text_area.get(f"{current_line}.0", f"{current_line}.end")
+        indentation = len(current_line_text) - len(current_line_text.lstrip())
+        self.text_area.insert(tk.INSERT, '\n' + ' ' * indentation)
 
-    def format_code(self, code):
-        # Example: Indent code by adding four spaces
-        lines = code.split("\n")
-        formatted_lines = ["    " + line if line.strip() else "" for line in lines]
-        formatted_code = "\n".join(formatted_lines)
-        return formatted_code
+    def toggle_line_numbers(self):
+        if self.line_numbers:
+            self.text_area.event_delete("<<LineNumbers>>")
+        else:
+            self.text_area.event_add("<<LineNumbers>>", "<KeyPress>")
+            self.text_area.bind("<<LineNumbers>>", self.show_line_numbers)
+        self.line_numbers = not self.line_numbers
+
+    def show_line_numbers(self, event):
+        current_line, _ = self.text_area.index(tk.INSERT).split('.')
+        if not event.char.isdigit():
+            self.text_area.insert(tk.END, f'{current_line}\n')
 
     def find_and_replace(self):
         find_text = simpledialog.askstring("Find", "Find:")
@@ -160,6 +213,21 @@ class SimpleIDE:
         if font_size:
             current_font = font.Font(font=self.text_area['font'])
             self.text_area.configure(font=(current_font.actual("family"), font_size))
+
+    def change_syntax_colors(self):
+        color = colorchooser.askcolor()[1]
+        if color:
+            self.syntax_highlighting_colors["keyword"] = color
+            self.syntax_highlighting_colors["string"] = color
+            self.syntax_highlighting_colors["comment"] = color
+            self.syntax_highlighting_colors["number"] = color
+            self.highlight_syntax()
+
+    def select_theme(self):
+        pass  # Implement theme selection functionality
+
+    def select_encoding(self):
+        pass  # Implement file encoding selection functionality
 
 def main():
     root = tk.Tk()
