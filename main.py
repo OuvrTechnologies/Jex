@@ -7,7 +7,7 @@ import re
 class SimpleIDE:
     def __init__(self, master):
         self.master = master
-        self.master.title("SimpleIDE")
+        self.master.title("Jex")
         self.master.geometry("800x600")
 
         # Create a frame for the editor
