@@ -3,9 +3,14 @@ from tkinter import filedialog, scrolledtext, messagebox, simpledialog, font, co
 import platform
 import keyword
 import re
+import tkinter.messagebox as messagebox
 
 class SimpleIDE:
     def __init__(self, master):
+
+        author_name = "Your Name"
+        version_number = "1.0"
+
         self.master = master
         self.master.title("Jex")
         self.master.geometry("800x600")
