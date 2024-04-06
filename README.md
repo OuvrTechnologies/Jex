@@ -1,7 +1,7 @@
 <h2 align="center">Jex-IDE</h2>
 
 <br/>
-<p align="center">SWIFT-chat is a newly released ai chatbot that aims to be the best out there, come and ride this interesting journey with us!
+<p align="center">A tool that allows you to quickly edit, format, and run files (currently limited to Python), quickly and efficiently!
 </p>
 
 <h2 align="center">Access the Program</h2>
