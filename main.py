@@ -1,15 +1,13 @@
 import tkinter as tk
-from tkinter import filedialog, scrolledtext, messagebox, simpledialog, font, colorchooser
+from tkinter import filedialog, scrolledtext, simpledialog, font, colorchooser, messagebox
 import platform
 import keyword
 import re
-import tkinter.messagebox as messagebox
 
 class SimpleIDE:
     def __init__(self, master):
-
-        author_name = "Your Name"
-        version_number = "1.0"
+        self.author_name = "Ouvr Technologies"
+        self.version_number = "1.0.2"
 
         self.master = master
         self.master.title("Jex")
@@ -76,6 +74,11 @@ class SimpleIDE:
         self.menu_bar.add_cascade(label="Settings", menu=self.settings_menu)
         self.settings_menu.add_command(label="Select Theme", command=self.select_theme)
         self.settings_menu.add_command(label="File Encoding", command=self.select_encoding)
+
+        # Help Menu
+        self.help_menu = tk.Menu(self.menu_bar, tearoff=False)
+        self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
+        self.help_menu.add_command(label="About", command=self.display_about)
 
         # Syntax Highlighting
         self.keywords = keyword.kwlist
@@ -233,6 +236,9 @@ class SimpleIDE:
 
     def select_encoding(self):
         pass  # Implement file encoding selection functionality
+
+    def display_about(self):
+        messagebox.showinfo("About", f"Author: {self.author_name}\nVersion: {self.version_number}")
 
 def main():
     root = tk.Tk()
