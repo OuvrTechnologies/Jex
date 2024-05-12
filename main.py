@@ -79,6 +79,9 @@ class SimpleIDE:
         self.help_menu = tk.Menu(self.menu_bar, tearoff=False)
         self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
         self.help_menu.add_command(label="About", command=self.display_about)
+        self.help_menu.add_separator()
+        self.help_menu.add_command(label="Instructions", command=self.display_instructions)
+        self.help_menu.add_command(label="Contact Support", command=self.contact_support)
 
         # Syntax Highlighting
         self.keywords = keyword.kwlist
@@ -239,6 +242,25 @@ class SimpleIDE:
 
     def display_about(self):
         messagebox.showinfo("About", f"Author: {self.author_name}\nVersion: {self.version_number}")
+
+    def display_instructions(self):
+        instructions = """
+        Welcome to Jex Code Editor!
+
+        Instructions:
+        1. Use the File menu to create, open, save, and exit files.
+        2. Edit menu provides options for undo, redo, find and replace, word count, and font size adjustment.
+        3. Run menu allows you to execute the code written in the editor.
+        4. Format menu provides options for code indentation, syntax highlighting, and toggling line numbers.
+        5. Settings menu includes options for selecting theme and file encoding.
+        6. Help menu provides information about the application, instructions on how to use it, and contact support.
+
+        Happy coding!
+        """
+        messagebox.showinfo("Instructions", instructions)
+
+    def contact_support(self):
+        messagebox.showinfo("Contact Support", "For support, please join the Ouvr technologies discord server using the following link --> https://discord.gg/tVE3A4uMZm")
 
 def main():
     root = tk.Tk()
