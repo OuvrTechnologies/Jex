@@ -6,7 +6,7 @@
 
 <h2 align="center">Access the Program</h2>
 
-<p align="center">Currently there is no donwload link, but you can access the program by downloading the "main.py" file and running it!</p>
+<p align="center">To find the downloads for the application, go to --> https://github.com/OuvrTechnologies/Jex/tree/main/Downloads </p>
 
 <h2 align="center">Issues</h2>
 
